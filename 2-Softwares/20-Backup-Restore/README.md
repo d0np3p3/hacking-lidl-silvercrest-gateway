@@ -46,9 +46,14 @@ cat mtd0.bin mtd1.bin mtd2.bin mtd3.bin mtd4.bin > fullmtd.bin
 
 ### ♻️ Restore
 
+⚠️ This method will only work to restore original partitions coming from the **same** machine. Modified partitions or partiions coming from another machine will have to be restored with Method 2 below.
 ⚠️ Only restore partitions that are **not mounted**.  
 - `mtd0` to `mtd3` are usually safe to write.  
-- `mtd4` (overlay) is mounted read/write — unmount it before restoring.
+- `mtd4` (overlay) is mounted read/write — unmount it before restoring. This generally means:
+```
+killall -q serialgateway
+umount /dev/mtdblock4
+```
 
 To restore, first transfer the file to the gateway:
 
@@ -76,35 +81,16 @@ ssh -p 2333 -o HostKeyAlgorithms=+ssh-rsa root@<gateway_ip> "dd if=/tmp/rootfs-n
 
 ### 🛠 Setup
 
-This second method will use Realtek bootloader's `FLR` and `FLW` commands to transfer files via TFTP. Therefore, a TFTP server must be running on your host.**
+This second method will use Realtek bootloader's `FLR` and `FLW` commands to transfer files via TFTP. Therefore, a TFTP client must be available on your host.**
 
 #### Install a tftp client & server on your linux host
 ```sh
-sudo apt install tftpd-hpa tftp-hpa
-# start the tftp server daemon
-sudo systemctl start tftpd-hpa
+sudo apt install tftp-hpa
 ```
-The default `tftpd-hpa` configuration file is in `/etc/default/tftpd-hpa` and looks like:
-```
-TFTP_USERNAME="tftp"
-TFTP_DIRECTORY="/srv/tftp"
-TFTP_ADDRESS=":69"
-TFTP_OPTIONS="--secure"
-```
-This indicates that the directory used by `tftpd` to store received files or files to be sent is `/srv/tftp`. We need to set up directory access to be able to use it locally:
-```
-sudo mkdir -p /srv/tftp
-sudo chown tftp:tftp /srv/tftp
-sudo chmod 775 /srv/tftp
-sudo chmod g+s /srv/tftp
-sudo usermod -a -G tftp $USER
-newgrp tftp
-```
-You can now read/write to this directory from your $USER account.
 
 #### Accessing the Bootloader
 - Connect a USB-to-serial adapter to your host, and wire its RX/TX pins to the gateway's UART interface.
-- Power on the gateway and repeatedly press ESC until the <RealTek> prompt appears on the serial console.
+- Power on (or reboot) the gateway while pressing the ESC key until the <RealTek> prompt appears on the serial console.
 
 ---
 
@@ -132,11 +118,11 @@ From the host upload the file:
 ```sh
 tftp -m binary 192.168.1.6 -c get mtd2.bin
 ```
-This command downloads the content from RAM to your local machine, storing it as `mtd2.bin`.
+This command uploads the content from the RAM gateway to your host, storing it as `mtd2.bin`.
 
 💡 You can repeat this process for each MTD partition (see reference table below).
 ⚠️ tftp is not a secure protocol. Repeat the process 2 or 3 times and make sure md5sum are equals
-⚠️ A direct ethernet cable connection is recommended
+⚠️ A direct ethernet cable connection is always better :-)
 
 ---
 
@@ -148,13 +134,12 @@ This is typically used after a file has been transferred to the gateway via TFTP
 
 The command format is:
 ```plaintext
-FLW <flash_offset> <ram_address> <length> 0
+FLW <flash_offset> <ram_address> <length>
 ```
 
 - `flash_offset`: destination in SPI flash (in hex)
 - `ram_address`: where the data is stored in RAM (in hex, e.g. `80500000`)
 - `length`: number of bytes to write (in hex)
-- `0`: SPI controller number (always `0` on these devices)
 
 #### Example: Restore of the `rootfs` (mtd2)
 
@@ -185,11 +170,11 @@ This writes the file `mtd2.bin` (2 MiB) to SPI flash at offset `0x00200000`.
 
 | MTD     | Description        | Offset     | Size       | FLR Command                                       | FLW Command                                       |
 |---------|--------------------|------------|------------|--------------------------------------------------|--------------------------------------------------|
-| mtd0    | Bootloader + Config| 0x00000000 | 0x00020000 | `FLR 80500000 00000000 00020000`                | `FLW 00000000 80500000 00020000 0`               |
-| mtd1    | Kernel             | 0x00020000 | 0x001E0000 | `FLR 80500000 00020000 001E0000`                | `FLW 00020000 80500000 001E0000 0`               |
-| mtd2    | Rootfs             | 0x00200000 | 0x00200000 | `FLR 80500000 00200000 00200000`                | `FLW 00200000 80500000 00200000 0`               |
-| mtd3    | Tuya Label         | 0x00400000 | 0x00020000 | `FLR 80500000 00400000 00020000`                | `FLW 00400000 80500000 00020000 0`               |
-| mtd4    | JFFS2 Overlay      | 0x00420000 | 0x00BE0000 | `FLR 80500000 00420000 00BE0000`                | `FLW 00420000 80500000 00BE0000 0`               |
+| mtd0    | Bootloader + Config| 0x00000000 | 0x00020000 | `FLR 80500000 00000000 00020000`                | `FLW 00000000 80500000 00020000`               |
+| mtd1    | Kernel             | 0x00020000 | 0x001E0000 | `FLR 80500000 00020000 001E0000`                | `FLW 00020000 80500000 001E0000`               |
+| mtd2    | Rootfs             | 0x00200000 | 0x00200000 | `FLR 80500000 00200000 00200000`                | `FLW 00200000 80500000 00200000`               |
+| mtd3    | Tuya Label         | 0x00400000 | 0x00020000 | `FLR 80500000 00400000 00020000`                | `FLW 00400000 80500000 00020000`               |
+| mtd4    | JFFS2 Overlay      | 0x00420000 | 0x00BE0000 | `FLR 80500000 00420000 00BE0000`                | `FLW 00420000 80500000 00BE0000`               |
 
 ---
 
