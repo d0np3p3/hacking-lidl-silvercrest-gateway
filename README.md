@@ -36,10 +36,12 @@ ______________________________________________________________________
 │   ├── 14-NCP-UART-HW/               # Firmware: EZSP NCP (for Zigbee2MQTT, ZHA)
 │   └── 15-RCP-UART-HW/               # Firmware: multiprotocol RCP
 │
-├── 2-Softwares/                    # Embedded Linux software
+├── 2-Softwares/                      # Embedded Linux software
+│   ├── 20-Backup-Restore             # Backup & Restore procedure of flash memory
 │   ├── 21-Linux-Kernel/              # Realtek SDK Linux kernel analysis
-│   ├── 22-System-Tools/              # Precompiled binaries and userland tools
-│   └── 23-RCP-Daemons/               # CPC / Zigbeed daemons for RCP firmware
+│   ├── 22-Update the Root FileSystem # Ready to flash updated root filesystem
+│   ├── 23-Create the Root Filesystem # Create you own rootfs or compile your own programs
+│   └── 24-RCP-Daemons/               # CPC / Zigbeed daemons for RCP firmware
 │
 ├── README.md                       # This file
 └── .github/
