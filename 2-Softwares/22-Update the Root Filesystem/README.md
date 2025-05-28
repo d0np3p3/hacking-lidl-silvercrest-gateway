@@ -24,15 +24,22 @@ Enjoy your clean and powerful embedded Linux environment!
 ## 📦 Step 1: Unpack `userdata.tar` on the Gateway
 
 1. Connect the gateway 1/ via Ethernet and 2/ via a serial terminal (@ 38400 bauds, 8N1).
-<br>
-   > ⚠️You should favor a terminal managing auto-reconnection when devices are disconnected/reconnected to reboot your gateway.
-   > - With Windows I personnaly use a windows terminal launching [Simply Serial](https://github.com/fasteddy516/SimplySerial) through the following command line:
-   > `ss -c:4 -b:38400 -p:none -d:8 -s:1 -quiet -nostatus`
-   > [Teraterm](https://github.com/TeraTermProject/teraterm/releases) is another excellent choice. Avoid Putty which does not like disconnect.
-   > <br>
-   > - With Linux, Minicom is a natural choice.
-<br>
+
+   ⚠️ You should favor a terminal that supports **auto-reconnection** when devices are disconnected and reconnected during gateway reboots.
+
+   - **On Windows**:
+     - I personally use a windows terminal launching [Simply Serial](https://github.com/fasteddy516/SimplySerial) with the following command line:
+       ```
+       ss -c:4 -b:38400 -p:none -d:8 -s:1 -quiet -nostatus
+       ```
+     - [Teraterm](https://github.com/TeraTermProject/teraterm/releases) is another excellent choice.
+     - Avoid *Putty*, which does not handle disconnects well.
+
+   - **On Linux**:
+     - [Minicom](https://help.ubuntu.com/community/Minicom) is a natural choice.
+
 2. Transfer the `userdata.tar` archive to the `/tuya` directory on the gateway.
+
 
    From a Windows host:
 
