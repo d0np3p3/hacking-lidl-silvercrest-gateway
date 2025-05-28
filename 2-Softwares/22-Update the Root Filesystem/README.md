@@ -105,7 +105,7 @@ cat /usr/share/zoneinfo/Europe/Paris | strings | tail -1
 # CET-1CEST,M3.5.0,M10.5.0/3
 ```
 
-Place output in `/tuya/etc/TZ` (i.e.: `cat "CET-1CEST,M3.5.0,M10.5.0/3" > /tuya/etc/TZ`).
+Place output in `/tuya/etc/TZ` (i.e.: `echo "CET-1CEST,M3.5.0,M10.5.0/3" > /tuya/etc/TZ`).
 
 #### 4.3 Set Static IP (optional)
 
