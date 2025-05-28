@@ -31,16 +31,16 @@ Enjoy your clean and powerful embedded Linux environment!
 
 ⚠️ Use a terminal with **auto-reconnection** capability when rebooting the gateway.
 
-- **Windows**:
-  - [Simply Serial](https://github.com/fasteddy516/SimplySerial):
+- **Windows**: 
+  - I personally use a windows terminal launching [Simply Serial](https://github.com/fasteddy516/SimplySerial) with the following command line::
     ```sh
     ss -c:4 -b:38400 -p:none -d:8 -s:1 -quiet -nostatus
     ```
-  - [TeraTerm](https://github.com/TeraTermProject/teraterm/releases)
-  - Avoid *Putty*
+  - [TeraTerm](https://github.com/TeraTermProject/teraterm/releases) is also an excellent choice.
+  - Avoid *Putty* which does not handle serial adapter disconnect.
 
 - **Linux**:
-  - [Minicom](https://help.ubuntu.com/community/Minicom)
+  - [Minicom](https://help.ubuntu.com/community/Minicom) is the natural choice.
 
 ---
 
@@ -64,21 +64,28 @@ Enjoy your clean and powerful embedded Linux environment!
 cd /tuya
 tar -xf userdata.tar
 ```
-
-This creates:
-
-```
-├── etc/
-│   ├── TZ, hostname, motd, passwd, profile
-│   ├── dropbear/ (keys)
-│   ├── init.d/
-│   │   ├── S20time, S30dropbear, S60serialgateway
-│   ├── ntp.conf, eth1.bak
-├── ssh/
-│   └── authorized_keys
-└── usr/
-    ├── bin/: serialgateway, serialgateway.real
-    └── sbin/: (add your own tools)
+Here is the content of userdata.tar. Most files are symlinked to the readonly squashfs rootfs but can be modified since they are stored on the writable partition (mtd4) of the gateway.
+```sh
+├── etc
+│   ├── TZ                        # Variable defining your local time zone
+│   ├── dropbear                  # Directory containing dropbear server keys (generated once at first logging)
+│   ├── eth1.bak                  # eth1.conf sample file for defining eth1 fixed IP
+│   ├── hostname                  # Now zigbeegw but you can rename it :-)
+│   ├── init.d                    # user script directory. You can add more or modify those provided below
+│   │   ├── S20time               # By default launch once the ntp client to set the local time. See script header.
+│   │   ├── S30dropbear           # Launch dropbear. Can be modified to restrict login through keys only. See script header.
+│   │   └── S60serialgateway      # Launch my own version of serialgateway. See below for more details. 
+│   ├── motd                      # Message of the day. Can be modified.
+│   ├── ntp.conf                  # ntp client servers
+│   ├── passwd                    # root password file
+│   └── profile                   # terminal settings.
+├── ssh
+│   └── authorized_keys           # file to store your hosts public keys
+└── usr
+    ├── bin                       # You can add here any program you would like to use
+    │   ├── serialgateway         # Supervise serialgateway.real to make sure serialgateway is always up and running
+    │   └── serialgateway.real    # The "real", historical serialgateway.
+    └── sbin                      # You can add here any program you would like to use
 ```
 
 ---
@@ -86,7 +93,7 @@ This creates:
 ### 4. Customize `/tuya/etc`
 
 #### 4.1 Disable Logging (optional)
-By default syslogd and klogd daemons will be started on reboot by S05syslog. If you want to disable those daemons:
+By default `syslogd` and `klogd` daemons will be started on reboot by `S05syslog`. If you want to disable those daemons:
 ```sh
 touch /tuya/etc/nosyslog
 ```
