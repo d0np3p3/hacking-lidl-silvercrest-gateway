@@ -86,19 +86,19 @@ This creates:
 ### 4. Customize `/tuya/etc`
 
 #### 4.1 Disable Logging (optional)
-
+By default syslogd and klogd daemons will be started on reboot by S05syslog. If you want to disable those daemons:
 ```sh
 touch /tuya/etc/nosyslog
 ```
 
-#### 4.2 Set Timezone
-
+#### 4.2 Set Timezone in POSIX TZ format
+The info can be found from your host linux machine with a `cat` command:
 ```sh
 cat /usr/share/zoneinfo/Europe/Paris | strings | tail -1
 # CET-1CEST,M3.5.0,M10.5.0/3
 ```
 
-Place output in `/tuya/etc/TZ`.
+Place output in `/tuya/etc/TZ` (i.e.: `cat "CET-1CEST,M3.5.0,M10.5.0/3" > /tuya/etc/TZ`).
 
 #### 4.3 Set Static IP (optional)
 
@@ -118,18 +118,28 @@ Adjust:
 
 ## 💻 Step 2: Transfer `newroot.bin` to the Gateway
 
+The flashing procedure is identical for both Windows and Linux. The only difference is how the newroot.bin file is transferred to the gateway.
+
+Download `newroot.bin` and place it in the Downloads folder of your host (linux or windows).
+
+Reboot the gateway trough the serial terminal while pressing `Esc` to access the `Realtek>` bootloader prompt. By default the bootloader is reachable over TFTP at `IP=192.168.1.6`. This address can be changed through the `IPCONFIG` bootloader command (e.g. `IPCONFIG 10.0.0.1`) if already being used or if your host is not on the same subnet.
+
 ### 🪟 Windows: Use Tftpd64
 
-1. Download from [official site](https://pjo2.github.io/tftpd64/)
+1. Download from [official site](https://pjo2.github.io/tftpd64/). Windows original `tftp` client won't work.
+   Mirrors:
+     * [https://tftpd64.apponic.com/download/](https://tftpd64.apponic.com/download/)
+     * [https://tftpd64.software.informer.com/](https://tftpd64.software.informer.com/)
+     * [https://en.freedownloadmanager.org/Windows-PC/Tftpd64-FREE.html](https://en.freedownloadmanager.org/Windows-PC/Tftpd64-FREE.html)
 2. Launch the **TFTP client** tab:
    - Host: `192.168.1.6`
    - Local File: `newroot.bin`
    - Remote File: `newroot.bin`
    - Click **Put**
-
-> Default bootloader IP: 192.168.1.6  
-> Can be changed using `IPCONFIG` at the `Realtek>` prompt.
-
+See the following picture with a Teraterm terminal on the left and Tftpd64 client on the right.
+   <p align="center">
+     <img src="./media/image1.jpeg" alt="Launcher Tab" width="80%">
+   </p>
 ### 🐧 Linux: Use `tftp-hpa`
 
 ```sh
@@ -153,7 +163,7 @@ Success!
 ```sh
 FLW 200000 80500000 00061002
 ```
-
+Make sure that File Size is 00061002 before proceeding to the next step.
 3. Confirm when prompted:
 
 ```
