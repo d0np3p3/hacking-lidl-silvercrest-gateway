@@ -16,7 +16,7 @@ It includes:
 
 ## 📦 Getting Started
 
-1. Download the archive [`source_rootfs.tar.gz`](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/tree/main/2-Softwares/23-Create%20the%20Root%20Filesystem)
+1. Download the archive [`source_rootfs.tar.gz`](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/blob/main/2-Softwares/23-Create%20the%20Root%20Filesystem/source_rootfs.tar.gz)
 2. Extract it in your working directory:
 
 ```sh
